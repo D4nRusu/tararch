@@ -1,5 +1,8 @@
 CC=gcc
-CFLAGS=-Wall -I.
+CFLAGS=-Wextra -Wall
 
-p: arch.o
-	$(CC) -o p arch.o
+arch: main.c arch.c arch.h
+	$(CC) $(CFLAGS) -o arch main.c arch.c arch.h
+
+clean:
+	rm arch
