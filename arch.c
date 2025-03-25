@@ -1,29 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
-#define BLOCK_SIZE 512 // Standard TAR
-
-// https://www.gnu.org/savannah-checkouts/gnu/tar/manual/html_node/Standard.html
-struct posix_header
-{                              /* byte offset */
-  char name[100];               /*   0 */
-  char mode[8];                 /* 100 */
-  char uid[8];                  /* 108 */
-  char gid[8];                  /* 116 */
-  char size[12];                /* 124 */
-  char mtime[12];               /* 136 */
-  char chksum[8];               /* 148 */
-  char typeflag;                /* 156 */
-  char linkname[100];           /* 157 */
-  char magic[6];                /* 257 */
-  char version[2];              /* 263 */
-  char uname[32];               /* 265 */
-  char gname[32];               /* 297 */
-  char devmajor[8];             /* 329 */
-  char devminor[8];             /* 337 */
-  char prefix[155];             /* 345 */
-                                /* 500 */
-};
+#include "arch.h"
 
 long int getFileSize(FILE* f)
 {
@@ -38,10 +16,51 @@ long int getFileSize(FILE* f)
     return res;
 }
 
-int main(int argc, char** argv)
+struct posix_header initHeader(struct posix_header header)
 {
-    FILE* f = fopen("testfile.txt", "rb");
-    printf("%ld", getFileSize(f));
-    fclose(f);
-    return 0;  
+    memset(&header, 0x0, sizeof(struct posix_header));
+    header.name[99] = '\0';
+    header.mode[7] = '\0';              
+    header.uid[7] = '\0';             
+    header.gid[7] = '\0';              
+    header.size[11] = '\0';         
+    header.mtime[11] = '\0';       
+    header.chksum[7] = '\0';      
+    header.typeflag = '\0';      
+    header.linkname[99] = '\0';     
+    header.magic[5] = '\0';      
+    header.version[1] = '\0';     
+    header.uname[31] = '\0';     
+    header.gname[31] = '\0';   
+    header.devmajor[7] = '\0';     
+    header.devminor[7] = '\0';     
+    header.prefix[154] = '\0';    
+    header.padding[11] = '\0';
+    return header;   
+}
+
+struct posix_header generateHeader(FILE* file, char* fname) // some of these are hardcoded values TODO: replace with actual ones
+{                                                              // as well as implement the rest of the header values
+    struct posix_header header = initHeader(header);
+    
+    // set name
+    strcpy(header.name, fname);
+
+    //set mode
+    // strcpy(header.mode,"0000644");
+
+    // //set uid
+    // strcpy(header.uid,"0001750");
+
+    // //set gid
+    // strcpy(header.gid,"0001750");
+
+    //set size
+    sprintf(header.size, "%ld", getFileSize(file));
+    return header;
+}
+
+void writeFile(FILE* fin, FILE* fout, char* finame)
+{
+    int a = 1;
 }
